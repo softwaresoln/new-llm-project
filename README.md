@@ -133,15 +133,51 @@ Checks the service status.
 
 ## Workflow Diagram
 
-```mermaid
-flowchart TD
-    A[Sample File (sample2.txt)] --> B[Split Text into 500-char Chunks]
-    B --> C[Generate Embeddings (SentenceTransformer)]
-    C --> D[Store in ChromaDB with Metadata]
-    D --> E[Retriever: Find Top 3 Relevant Chunks]
-    E --> F[Create Context with PromptTemplate]
-    F --> G[OpenRouter API (Qwen/Qwen3-4B)]
-    G --> H[AI Reply Returned]
+```
+┌───────────────────────────┐
+│ Sample File (sample2.txt) │
+└─────────┬─────────────────┘
+          │
+          ▼
+┌───────────────────────────┐
+│ Split Text into 500-char  │
+│        Chunks             │
+└─────────┬─────────────────┘
+          │
+          ▼
+┌─────────────────────────┐
+│ Generate Embeddings     │
+│   (SentenceTransformer) │
+└─────────┬───────────────┘
+          │
+          ▼
+┌─────────────────────────┐
+│ Store in ChromaDB with  │
+│       Metadata          │
+└─────────┬───────────────┘
+          │
+          ▼
+┌─────────────────────────┐
+│ Retriever: Find Top 3   │
+│    Relevant Chunks      │
+└─────────┬───────────────┘
+          │
+          ▼
+┌─────────────────────────┐
+│ Create Context with     │
+│     PromptTemplate      │
+└─────────┬───────────────┘
+          │
+          ▼
+┌─────────────────────────┐
+│ OpenRouter API          │
+│   (Qwen/Qwen3-4B)       │
+└─────────┬───────────────┘
+          │
+          ▼
+┌─────────────────────────┐
+│    AI Reply Returned    │
+└─────────────────────────┘
 ```
 
 This diagram shows how text is embedded, stored, retrieved, and used to generate contextual AI responses.
