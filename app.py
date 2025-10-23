@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "qwen/qwen3-4b:free")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "mistralai/mistral-7b-instruct:free")
 OPENROUTER_PROVIDER = os.getenv("OPENROUTER_PROVIDER", "").strip()
 SAMPLE_FILE = os.getenv("SAMPLE_FILE", "sample2.txt")
 CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH", "./chroma_db")
@@ -280,3 +280,4 @@ if __name__ == "__main__":
         app.run(debug=True, port=port)
     finally:
         cleanup_chroma_db()
+
