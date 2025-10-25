@@ -3,12 +3,16 @@ import os
 import shutil
 import atexit
 import logging
-import requests
 import re
-from langchain.embeddings import SentenceTransformerEmbeddings
-from langchain.vectorstores import Chroma
-from langchain.prompts import PromptTemplate
+import requests
 from dotenv import load_dotenv
+
+# ----------------------------
+# Modern LangChain Imports
+# ----------------------------
+from langchain_community.embeddings import SentenceTransformerEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain.prompts import PromptTemplate
 
 # ----------------------------
 # Load environment variables
@@ -49,7 +53,7 @@ def cleanup_chroma_db():
 atexit.register(cleanup_chroma_db)
 
 # ----------------------------
-# Initialize Chroma DB with metadata
+# Initialize Chroma DB
 # ----------------------------
 def initialize_chroma_db(persist_directory=CHROMA_DB_PATH, sample_file=SAMPLE_FILE, chunk_size=500):
     global vectorstore, retriever
@@ -71,7 +75,7 @@ def initialize_chroma_db(persist_directory=CHROMA_DB_PATH, sample_file=SAMPLE_FI
         logger.error("No content found in %s", sample_file)
         return None
 
-    # Split into GST Sections using regex
+    # Split into sections using regex
     sections = re.split(r"(Section\s+\d+[\.:])", text)
     chunks, metadatas = [], []
 
@@ -102,13 +106,20 @@ def initialize_chroma_db(persist_directory=CHROMA_DB_PATH, sample_file=SAMPLE_FI
             })
 
     embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-    vectorstore = Chroma.from_texts(chunks, embeddings, persist_directory=persist_directory, metadatas=metadatas)
+    vectorstore = Chroma.from_texts(
+        texts=chunks,
+        embedding=embeddings,
+        persist_directory=persist_directory,
+        metadatas=metadatas
+    )
     vectorstore.persist()
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
     logger.info(f"✅ Indexed {len(chunks)} chunks with section metadata.")
     return vectorstore
 
+# ----------------------------
 # Initialize DB
+# ----------------------------
 try:
     vectorstore = initialize_chroma_db()
     logger.info("Chroma DB initialized successfully.")
@@ -217,9 +228,6 @@ def query():
                     "score": None
                 })
 
-        if not results:
-            return jsonify({"top_chunks": [], "message": "No relevant chunks found"}), 200
-
         # remove duplicates
         unique = []
         seen = set()
@@ -272,7 +280,7 @@ def health():
     return jsonify({"status": "healthy", "message": "Service is running"})
 
 # ----------------------------
-# Run
+# Run Flask
 # ----------------------------
 if __name__ == "__main__":
     try:
@@ -280,4 +288,3 @@ if __name__ == "__main__":
         app.run(debug=True, port=port)
     finally:
         cleanup_chroma_db()
-
