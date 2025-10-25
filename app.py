@@ -10,9 +10,9 @@ from dotenv import load_dotenv
 # ----------------------------
 # Modern LangChain Imports
 # ----------------------------
-from langchain_community.embeddings import SentenceTransformerEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
-from langchain.prompts import PromptTemplate
+from langchain_core.prompts import PromptTemplate
 
 # ----------------------------
 # Load environment variables
@@ -105,14 +105,14 @@ def initialize_chroma_db(persist_directory=CHROMA_DB_PATH, sample_file=SAMPLE_FI
                 "chunk_index": i // chunk_size
             })
 
-    embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     vectorstore = Chroma.from_texts(
         texts=chunks,
         embedding=embeddings,
         persist_directory=persist_directory,
         metadatas=metadatas
     )
-    vectorstore.persist()
+    # Note: persist() is no longer needed in Chroma 0.4.x as it auto-persists
     retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
     logger.info(f"✅ Indexed {len(chunks)} chunks with section metadata.")
     return vectorstore
@@ -217,7 +217,7 @@ def query():
                     "score": round(float(score), 4) if score else None
                 })
         else:
-            docs = retriever.get_relevant_documents(question)
+            docs = retriever.invoke(question)
             for doc in docs:
                 meta = getattr(doc, "metadata", {})
                 results.append({
@@ -256,7 +256,7 @@ def chat():
         if not question:
             return jsonify({"error": "question is required"}), 400
 
-        docs = retriever.get_relevant_documents(question)
+        docs = retriever.invoke(question)
         context = "\n".join([doc.page_content for doc in docs])
         prompt_text = PROMPT.format(context=context, question=question)
 

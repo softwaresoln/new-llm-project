@@ -54,10 +54,40 @@ pip install -r requirements.txt
 ### 3. Run the Server
 
 ```bash
-python app.py
+python3 app.py
 ```
 
 Then open: 👉 [http://localhost:5000](http://localhost:5000)
+
+## Quick Start
+
+1. **Clone and setup:**
+
+   ```bash
+   git clone <your-repo>
+   cd new-llm-project
+   cp .env.example .env
+   # Edit .env and add your OpenRouter API key
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. **Run the application:**
+
+   ```bash
+   python3 app.py
+   ```
+
+4. **Access the web interface:**
+   - Open your browser to `http://localhost:5000`
+   - Use the chat interface to ask tax-related questions
+   - The app will automatically process your `sample2.txt` file
+
+**That's it!** Your Tax AI Assistant is now running.
 
 ## API Endpoints
 
